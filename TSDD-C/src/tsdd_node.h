@@ -87,13 +87,15 @@ public:
 namespace std {
 
 // int类型的 hash函数
-// 散列函数采用 f(x) = (x | 0×0000FFFF) XOR (x >> 16);
+/* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
+#define GOLDEN_RATIO_PRIME_32 0x9e370001UL
+#define BITS 16
 struct hash_int{
     size_t operator()(const int s) const {
         size_t h = 0;
-        for(; *s; s++)
-            h = *s + h*31;
-        return h;
+        h = s * GOLDEN_RATIO_PRIME_32;
+        /* High bits are more random, so use them. */
+        return h >> (32 - BITS);
     }
 }
 
@@ -101,9 +103,9 @@ struct hash_int{
 struct hash_addr{
     size_t operator()(const tsdd::addr_t s) const {
         size_t h = 0;
-        for(; *s; s++)
-            h = *s + h*31;
-        return h;
+        h = s * GOLDEN_RATIO_PRIME_32;
+        /* High bits are more random, so use them. */
+        return h >> (32 - BITS);
     }
 }
 
