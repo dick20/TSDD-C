@@ -86,41 +86,53 @@ public:
 
 namespace std {
 
-// class Tsdd;
-
-template <> struct hash<tsdd::Tsdd> {
-    std::size_t operator()(const tsdd::Tsdd& t) const {
+// int类型的 hash函数
+// 散列函数采用 f(x) = (x | 0×0000FFFF) XOR (x >> 16);
+struct hash_int{
+    size_t operator()(const int s) const {
         size_t h = 0;
-        // if (t.is_true()) {
-        //     // std::cout << "hhhhh" << std::endl;
-        //     tsdd::hash_combine(h, hash<int>()(-1));
-        //     tsdd::hash_combine(h, hash<tsdd::addr_t>()(-1));
-        //     return h;
-        // }
-        tsdd::hash_combine(h, hash<int>()(t.tag_));
-        tsdd::hash_combine(h, hash<tsdd::addr_t>()(t.addr_));
+        for(; *s; s++)
+            h = *s + h*31;
+        return h;
+    }
+}
+
+// addr类型的 hash函数
+struct hash_addr{
+    size_t operator()(const tsdd::addr_t s) const {
+        size_t h = 0;
+        for(; *s; s++)
+            h = *s + h*31;
+        return h;
+    }
+}
+
+struct hash_tsdd {
+    size_t operator()(const tsdd::Tsdd& t) const {
+        size_t h = 0;
+        tsdd::hash_combine(h, hash_int()(t.tag_));
+        tsdd::hash_combine(h, hash_addr()(t.addr_));
         return h;
     }
 };
 
-template <> struct hash<tsdd::TsddNode> {
-    std::size_t operator()(const tsdd::TsddNode& n) const {
+struct hash_tsdd_node {
+    size_t operator()(const tsdd::TsddNode& n) const {
         size_t h = 0;
         if (n.value >= 0) {
-            tsdd::hash_combine(h, hash<int>()(n.value));
-            tsdd::hash_combine(h, hash<int>()(n.vtree_index));
+            tsdd::hash_combine(h, hash_int()(n.value));
+            tsdd::hash_combine(h, hash_int()(n.vtree_index));
             return h;
         } else if (n.value < 0) {
             for (const auto& e : n.elements) {
-                tsdd::hash_combine(h, hash<tsdd::Tsdd>()(e.first));
-                tsdd::hash_combine(h, hash<tsdd::Tsdd>()(e.second));
+                tsdd::hash_combine(h, hash_tsdd()(e.first));
+                tsdd::hash_combine(h, hash_tsdd()(e.second));
             }
-            tsdd::hash_combine(h, hash<int>()(n.vtree_index));
+            tsdd::hash_combine(h, hash_int()(n.vtree_index));
         }
         return h;
     }
 };
 }
-
 
 #endif

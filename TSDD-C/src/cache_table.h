@@ -43,9 +43,9 @@ public:
 
 	size_t calc_key(const OPERATOR_TYPE op, const Tsdd& lhs,  const Tsdd& rhs) {
 	    size_t key = 0;
-	    hash_combine(key, std::hash<int>()(static_cast<int>(op)));
-	    hash_combine(key, std::hash<tsdd::Tsdd>()(lhs));
-	    hash_combine(key, std::hash<tsdd::Tsdd>()(rhs));
+	    hash_combine(key, std::hash_int()(static_cast<int>(op)));
+	    hash_combine(key, std::hash_tsdd()(lhs));
+	    hash_combine(key, std::hash_tsdd()(rhs));
 	    // std::cout << "cache table size: " << cache_table_.size() << std::endl;
 	    return key % cache_table_.size();
 	}
